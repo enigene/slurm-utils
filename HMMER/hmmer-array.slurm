@@ -1,0 +1,84 @@
+#!/bin/bash
+
+#SBATCH --partition=queue
+#SBATCH --time=12:00:00
+#SBATCH --output=slurm-%A.out
+##SBATCH --error=slurm-%A.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --exclude=n[4-6]
+
+#SBATCH --job-name=hmmer
+
+set -o pipefail
+set -o errexit
+
+module purge
+
+source /data/software/exports
+
+module load coreutils/8.21
+module load HMMER
+module load bedops
+#module load genometools
+
+scratchdir="/scratch/$SLURM_JOB_USER/$SLURM_JOB_ID-$SLURM_JOB_NAME"
+
+files=( "$dir"/*.fas )
+
+filename="${files[$SLURM_ARRAY_TASK_ID]}"
+
+p="$(basename "$hmm_profile_name")"
+bp="${p%.*}"
+
+n="$(basename "$filename")"
+bn="${n%.*}"
+
+#echo "hmm_profile_name: $hmm_profile_name"
+#echo "p: $p"
+#echo "bn: $bp"
+
+#echo "SLURM_ARRAY_TASK_ID: $SLURM_ARRAY_TASK_ID"
+#echo "files: ${#files[@]}"
+
+#echo "dir: $dir"
+#echo "filename: $filename"
+#echo "n: $n"
+#echo "bn: $bn"
+
+mkdir -p "$scratchdir"
+
+cd "$scratchdir"
+
+proc() {
+
+    echo "$filename"
+
+#   HMMER analysis
+    nhmmer --notextw --noali --tblout nhmmer-$bp-vs-$bn-tbl.out -o /dev/null $hmm_profile_name $filename
+
+#   Converting HMM table output to the BED format with filtering by threshold score to length
+    awk -v th=0.7 -f ~/HMMER/scripts/hmmertblout2bed-v2.2.awk nhmmer-$bp-vs-$bn-tbl.out > nhmmer-$bp-vs-$bn-tbl.bed
+
+#   Sorting by name and coordinates
+    sort -k 1.4,1V -k 2,2n nhmmer-$bp-vs-$bn-tbl.bed > _nhmmer-t0-$bn.bed
+
+#   Filter by score in each region
+    bedmap --max-element --fraction-either 0.1 _nhmmer-t0-$bn.bed > _nhmmer-t1-$bn.bed
+
+#   Filter unique elements
+    awk "{if(!(\$0 in a)){a[\$0];if(length(\$4)==2){next}print}}" _nhmmer-t1-$bn.bed > nhmmer-$bp-vs-$bn-tbl.bed
+
+#   Delete temporary files
+    rm _nhmmer-t1-$bn.bed
+    rm _nhmmer-t0-$bn.bed
+
+    cp -pr "$scratchdir" "$dir"
+}
+
+export -f proc
+
+time proc 2>>&1
+
+rm -rf "$scratchdir"
