@@ -79,6 +79,6 @@ proc() {
 
 export -f proc
 
-time proc 2>>&1
+time proc 2>&1
 
 rm -rf "$scratchdir"
