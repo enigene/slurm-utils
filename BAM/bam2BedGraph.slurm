@@ -21,7 +21,7 @@ module load bedtools/2.25.0
 bamfiles=./*.bam
 
 for file in $bamfiles; do
-  fp="{file%.*}"
+  fp="${file%.*}"
   bedtools genomecov -bg -ibam $file > $fp.bedgraph
   sort -k 1.4,1V -k 2,2n $fp.bedgraph > $fp.bedgraph.sorted
 done
