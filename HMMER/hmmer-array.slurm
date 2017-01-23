@@ -24,7 +24,8 @@ module load bedops
 
 scratchdir="/scratch/$SLURM_JOB_USER/$SLURM_JOB_ID-$SLURM_JOB_NAME"
 
-files=( "$dir"/*.fas )
+#files=( "$dir"/*.fas )
+files=( $(find "$dir" -name "*.fas" -print) )
 
 filename="${files[$SLURM_ARRAY_TASK_ID]}"
 
