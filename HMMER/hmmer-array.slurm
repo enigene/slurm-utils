@@ -67,7 +67,8 @@ proc() {
     bedmap --max-element --fraction-either 0.1 _nhmmer-t0-$bn.bed > _nhmmer-t1-$bn.bed
 
 #   Filter unique elements
-    awk "{if(!(\$0 in a)){a[\$0];if(length(\$4)==2){next}print}}" _nhmmer-t1-$bn.bed > nhmmer-$bp-vs-$bn-tbl.bed
+#    awk "{if(!(\$0 in a)){a[\$0];if(length(\$4)==2){next}print}}" _nhmmer-t1-$bn.bed > nhmmer-$bp-vs-$bn-tbl.bed
+    awk "{if(!(\$0 in a)){a[\$0];print}}" _nhmmer-t1-$bn.bed > nhmmer-$bp-vs-$bn-tbl.bed
 
 #   Delete temporary files
     rm _nhmmer-t1-$bn.bed
