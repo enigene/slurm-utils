@@ -2,8 +2,8 @@
 
 #SBATCH --partition=queue
 #SBATCH --time=12:00:00
-#SBATCH --output=slurm-%A.out
-##SBATCH --error=slurm-%A.err
+#SBATCH --output=slurm-%A-%a.out
+#SBATCH --error=slurm-%A-%a.err
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
@@ -21,7 +21,6 @@ source /data/software/exports
 module load coreutils/8.21
 module load HMMER
 module load bedops
-#module load genometools
 
 scratchdir="/scratch/$SLURM_JOB_USER/$SLURM_JOB_ID-$SLURM_JOB_NAME"
 
