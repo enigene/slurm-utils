@@ -22,7 +22,9 @@ export dir="$1"
 
 export hmm_profile_name="$2"
 
-files=( "$dir"/*.fas )
+#files=( "$dir"/*.fas )
+files=( $(find "$dir" -name "*.fas" -print) )
+
 numfiles="${#files[@]}"
 zbnumfiles="$(($numfiles-1))"
 
