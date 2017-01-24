@@ -59,7 +59,7 @@ proc() {
     nhmmer --notextw --noali --tblout nhmmer-$bp-vs-$bn-tbl.out -o /dev/null $hmm_profile_name $filename
 
 #   Converting HMM table output to the BED format with filtering by threshold score to length
-    awk -v th=0.7 -f ~/HMMER/scripts/hmmertblout2bed-v2.2.awk nhmmer-$bp-vs-$bn-tbl.out > nhmmer-$bp-vs-$bn-tbl.bed
+    awk -v th=0.7 -f ~/HMMER/scripts/hmmertblout2bed/hmmertblout2bed.awk nhmmer-$bp-vs-$bn-tbl.out > nhmmer-$bp-vs-$bn-tbl.bed
 
 #   Sorting by name and coordinates
     sort -k 1.4,1V -k 2,2n nhmmer-$bp-vs-$bn-tbl.bed > _nhmmer-t0-$bn.bed
